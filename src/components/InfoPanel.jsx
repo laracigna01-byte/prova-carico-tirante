@@ -81,7 +81,6 @@ export function InfoPanel({ data, setData, photo, setPhoto }) {
             <TextInput label="Martinetto" value={data.jackId} onChange={upd("jackId")} />
             <TextInput label="Manometro / cella" value={data.manometerId} onChange={upd("manometerId")} />
             <TextInput label="Comparatore" value={data.comparatorId} onChange={upd("comparatorId")} />
-            <NumberInput label="Coeff. taratura (opzionale)" value={data.calibrationCoeff || ""} onChange={upd("calibrationCoeff")} placeholder="non richiesto per calcolo bar" />
             <TextInput label="Presenti" value={data.presenti} onChange={upd("presenti")} />
           </div>
 
