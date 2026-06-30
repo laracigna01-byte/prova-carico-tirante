@@ -10,12 +10,10 @@ export function StepTable({ step, load, targetLoad, pressure, onPressureChange, 
     onChange(next);
   };
 
-  const nums = readings
-    .filter((v) => v !== "" && v !== null && v !== undefined)
-    .map((v) => Number(String(v).replace(",", ".")))
+  const lastThree = readings
+    .slice(7, 10)
+    .map(Number)
     .filter((v) => Number.isFinite(v));
-
-  const lastThree = nums.slice(-3);
 
   const isStable =
     lastThree.length === 3 &&
@@ -41,15 +39,14 @@ export function StepTable({ step, load, targetLoad, pressure, onPressureChange, 
       </div>
 
       <div className="pressure-row">
-        <label>Pressione calcolata [bar]</label>
+        <label>Pressione letta [bar] *</label>
         <input
           type="number"
           inputMode="decimal"
           step="0.01"
           min="0"
           value={pressure || ""}
-          readOnly
-          aria-label="Pressione calcolata in bar"
+          onChange={(e) => onPressureChange(e.target.value)}
           placeholder="bar"
         />
       </div>

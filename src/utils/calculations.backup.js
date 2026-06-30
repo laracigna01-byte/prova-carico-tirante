@@ -17,7 +17,10 @@ function calcValidReading(values) {
     .map((v) => toNumber(v, null))
     .filter((v) => v !== null);
 
-  const lastThree = nums.slice(-3);
+  const lastThree = values
+    .slice(7, 10)
+    .map((v) => toNumber(v, null))
+    .filter((v) => v !== null);
 
   const stable =
     lastThree.length === 3 &&
@@ -45,9 +48,9 @@ export function buildRows({ readings, pressures, loadSteps, testLoad, calibratio
     const values = normalizeReadings(readings?.[step.key]);
     const readingData = calcValidReading(values);
     const targetLoad = round(Nc * step.factor, 2);
-    const pressure = Nc > 0 ? round((targetLoad * 700) / Nc, 2) : null;
-    const measuredLoad = targetLoad;
-    const load = targetLoad;
+    const pressure = toNumber(pressures?.[step.key], null);
+    const measuredLoad = coeff !== null && pressure !== null ? round(pressure * coeff, 2) : null;
+    const load = measuredLoad ?? targetLoad;
 
     return {
       ...step,
@@ -85,13 +88,9 @@ export function calcTirante({ readings, pressures, loadSteps, testLoad, calibrat
     unload: r.unload,
   });
 
-  const chartLoadPoints = rows
+  const chartLoad = rows
     .filter((r) => !r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
     .map(toChartPoint);
-
-  const chartLoad = chartLoadPoints.length
-    ? [{ x: 0, y: 0, pressure: 0, targetLoad: 0, name: "Origine", phase: "origine", unload: false }, ...chartLoadPoints]
-    : [];
 
   const chartUnload = rows
     .filter((r) => r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
@@ -110,7 +109,7 @@ export function calcTirante({ readings, pressures, loadSteps, testLoad, calibrat
     chartUnload,
     chartAll,
     formula:
-      "Pressione [bar] calcolata automaticamente con proporzione: carico massimo prova : 700 bar = carico gradino : x. Esempio: 300 kN : 700 bar = 150 kN : 350 bar.",
+      "Pressione [bar] inserita dal tecnico. Carico applicato [kN] = pressione [bar] x coefficiente di taratura [kN/bar]. Se manca la pressione viene mostrato solo il carico teorico del gradino = Nc x percentuale.",
   };
 }
 
@@ -120,7 +119,11 @@ export function validateTest({ data, result, photo }) {
   if (!data.anchorId) errors.push("Identificativo tirante mancante");
   if (!data.testLoad) errors.push("Carico di collaudo Nc mancante");
   if (!data.exerciseLoad) errors.push("Carico di esercizio Ne mancante");
-  if (!data.testLoad || Number(data.testLoad) <= 0) errors.push("Carico massimo della prova mancante");
+  if (!data.calibrationCoeff) errors.push("Coeff. di taratura martinetto kN/bar mancante");
+
+  const rowsWithReadings = result.rows.filter((r) => r.measuredCount > 0);
+  const rowsWithoutPressure = rowsWithReadings.filter((r) => r.pressure === null);
+  if (rowsWithoutPressure.length) errors.push("Inserire la pressione letta [bar] per i gradini compilati");
   if (result.measuredCount === 0) errors.push("Inserire almeno una lettura del comparatore");
   if (!photo) errors.push("Foto della prova mancante");
   if (!data.tecnico) errors.push("Tecnico esecutore mancante");

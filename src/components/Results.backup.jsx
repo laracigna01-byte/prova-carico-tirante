@@ -14,8 +14,8 @@ export function LoadDisplacementChart({ result }) {
     <ResponsiveContainer width="100%" height="100%">
       <ScatterChart margin={{ top: 10, right: 18, bottom: 24, left: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-        <XAxis type="number" dataKey="x" name="Spostamento" unit=" mm" domain={[0, "dataMax + 0.5"]} stroke={T.textMuted} label={{ value: "Spostamento [mm]", position: "insideBottom", offset: -12 }} />
-        <YAxis type="number" dataKey="y" name="Carico" unit=" kN" domain={[0, "dataMax + 10"]} stroke={T.textMuted} label={{ value: "Carico [kN]", angle: -90, position: "insideLeft" }} />
+        <XAxis type="number" dataKey="x" name="Spostamento" unit=" mm" stroke={T.textMuted} label={{ value: "Spostamento [mm]", position: "insideBottom", offset: -12 }} />
+        <YAxis type="number" dataKey="y" name="Carico" unit=" kN" stroke={T.textMuted} label={{ value: "Carico [kN]", angle: -90, position: "insideLeft" }} />
         <Tooltip content={<Tip />} />
         <Legend />
         <Scatter name="Carico" data={result.chartLoad} line={{ stroke: T.cycle1, strokeWidth: 2 }} fill={T.cycle1} />
@@ -32,7 +32,7 @@ export function Results({ result, data, setData, chartRef }) {
         <ResultCard label="Gradini compilati" value={result.measuredCount} unit="/12" color={T.accentBlue} sub="carico e scarico" />
         <ResultCard label="Spostamento a 100%" value={fmt(result.maxDisplacement, 3)} unit="mm" color={T.cycle1} sub="valore comparatore" />
         <ResultCard label="Residuo allo scarico" value={fmt(result.residual, 3)} unit="mm" color={T.accentOrange} sub="valore comparatore" />
-        <ResultCard label="Manometro" value="700" unit="bar" color={T.accentYellow} sub="fondo scala proporzione" />
+        <ResultCard label="Coeff. taratura" value={fmt(data.calibrationCoeff, 3)} unit="kN/bar" color={T.accentYellow} sub="da certificato martinetto" />
         <ResultCard label="Esito dichiarato" value={data.outcome || "—"} unit="" color={data.outcome === "Negativo" ? T.accentRed : T.accent} sub="scelto dal tecnico" />
       </div>
 
@@ -47,7 +47,7 @@ export function Results({ result, data, setData, chartRef }) {
       </div>
 
       <div className="chart-box" ref={chartRef}>
-        <div className="chart-title"><b>Grafico carico / spostamento</b><span>Il grafico parte da 0; asse X = spostamento letto al comparatore, asse Y = carico del gradino</span></div>
+        <div className="chart-title"><b>Grafico carico calcolato / spostamento</b><span>Asse X = spostamento letto al comparatore, asse Y = carico calcolato dai bar</span></div>
         {result.chartAll?.length ? <div className="chart"><LoadDisplacementChart result={result} /></div> : <div className="empty">Inserisci le letture per generare il grafico.</div>}
       </div>
 
@@ -61,7 +61,7 @@ export function Results({ result, data, setData, chartRef }) {
         </div>
       </div>
 
-      <div className="note"><b>Nota tecnica:</b> la pressione in bar viene calcolata automaticamente con proporzione: carico massimo prova : 700 bar = carico gradino : x. I gradini e le letture del comparatore restano invariati. Lo scarico è gestito con gradini dedicati e curva separata.</div>
+      <div className="note"><b>Nota tecnica:</b> la pressione in bar non ha valori di default: deve essere letta e inserita dal tecnico. Il carico in kN serve per tabella, grafico e PDF, ma non è un input manuale: viene calcolato automaticamente come pressione [bar] x coefficiente di taratura [kN/bar]. Lo scarico è gestito con gradini dedicati e curva separata.</div>
     </div>
   );
 }

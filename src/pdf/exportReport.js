@@ -381,8 +381,8 @@ export async function exportReport({ data, result, photo = null, preview = false
   drawCompactCell(pdf, leftX + 3 * w4, ly, w4, h, "Comparatore", data.comparatorId);
   ly += h;
 
-  drawCompactCell(pdf, leftX, ly, w3, h, "Coeff. taratura", `${safeText(data.calibrationCoeff, "—")} kN/bar`);
-  drawCompactCell(pdf, leftX + w3, ly, w3 * 2, h, "Formula carico applicato", "kN = bar x coeff. taratura");
+  drawCompactCell(pdf, leftX, ly, w3, h, "Fondo scala manometro", "700 bar");
+  drawCompactCell(pdf, leftX + w3, ly, w3 * 2, h, "Formula pressione", "bar = carico gradino x 700 / carico massimo prova");
   ly += h + 2;
 
   ly = drawSection(pdf, leftX, ly, leftW, "TABELLA DI PROVA");

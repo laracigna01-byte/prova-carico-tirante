@@ -105,7 +105,7 @@ export default function App() {
         <div><span>Ne esercizio</span><b>{fmt(Number(data.exerciseLoad || 0), 2)} kN</b></div>
         <div><span>Nc collaudo</span><b>{fmt(Number(data.testLoad || 0), 2)} kN</b></div>
         <div><span>Lunghezza</span><b>{data.length || "-"} m</b></div>
-        <div><span>Coeff. taratura</span><b>{data.calibrationCoeff ? `${fmt(Number(data.calibrationCoeff || 0), 3)} kN/bar` : "Mancante"}</b></div>
+        <div><span>Manometro</span><b>700 bar</b></div>
         <div><span>Foto prova</span><b>{photo ? "Presente" : "Mancante"}</b></div>
       </section>
 
@@ -114,7 +114,7 @@ export default function App() {
       <section className="workbench">
         <div className="left-col">
           <SectionHeader label="Tabella prova - un comparatore" step="1" color={T.accentBlue} />
-          <p className="hint">Per ogni gradino inserisci la pressione letta al manometro [bar] e le letture del comparatore. Il carico applicato in kN viene calcolato dall’app con il coefficiente di taratura del martinetto.</p>
+          <p className="hint">Per ogni gradino inserisci solo le letture del comparatore. La pressione in bar viene calcolata automaticamente con la proporzione: carico massimo prova : 700 bar = carico gradino : x.</p>
           <div className="steps one-col">
             {result.rows.map((row, index) => (
               <StepTable
@@ -122,7 +122,7 @@ export default function App() {
                 step={row}
                 load={row.load}
                 targetLoad={row.targetLoad}
-                pressure={pressures[row.key]}
+                pressure={row.pressure}
                 onPressureChange={(value) => setPressure(row.key, value)}
                 value={readings[row.key]}
                 onChange={(value) => setReading(row.key, value)}
