@@ -229,7 +229,7 @@ function drawPdfChart(pdf, rows, x, y, w, h) {
 
     if (prev) pdf.line(prev.x, prev.y, px, py);
 
-    pdf.circle(px, py, 1, "F");
+    if (p.phase !== "origine") pdf.circle(px, py, 1, "F");
     pdf.setFontSize(3.7);
     pdf.text(String(p.label), px + 1.2, py - 1.5);
 
@@ -246,7 +246,7 @@ function drawPdfChart(pdf, rows, x, y, w, h) {
 
     if (prev) pdf.line(prev.x, prev.y, px, py);
 
-    pdf.circle(px, py, 1, "F");
+    if (p.phase !== "origine") pdf.circle(px, py, 1, "F");
     pdf.setFontSize(3.7);
     pdf.text(String(p.label).replace("Scarico ", "S"), px + 1.2, py - 1.5);
 
