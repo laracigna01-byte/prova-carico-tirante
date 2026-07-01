@@ -159,7 +159,7 @@ function drawFooter(pdf, ML, PW, PH) {
   pdf.text("Pagina 1/1", PW - ML, PH - 6, { align: "right" });
 }
 
-function drawPdfChart(pdf, rows, x, y, w, h) {
+function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   pdf.setFillColor(255, 255, 255);
   pdf.rect(x, y, w, h, "F");
   pdf.setDrawColor(180, 180, 180);
@@ -170,17 +170,14 @@ function drawPdfChart(pdf, rows, x, y, w, h) {
   pdf.setTextColor(20, 20, 20);
   pdf.text("Curva carico applicato - spostamento", x + 2, y + 4);
 
-  const validPoints = rows
-    .filter((r) => Number.isFinite(Number(r.reading)) && Number.isFinite(Number(r.load)))
-    .map((r) => ({
-      x: Number(r.reading),
-      y: Number(r.load),
-      label: r.label,
-      isUnload: String(r.label).toLowerCase().includes("scarico"),
-    }));
+  const loadPoints = (chartLoad || []).filter(
+    (p) => Number.isFinite(Number(p.x)) && Number.isFinite(Number(p.y))
+  );
 
-  const loadPoints = validPoints.filter((p) => !p.isUnload);
-  const unloadPoints = validPoints.filter((p) => p.isUnload);
+  const unloadPoints = (chartUnload || []).filter(
+    (p) => Number.isFinite(Number(p.x)) && Number.isFinite(Number(p.y))
+  );
+
   const allPoints = [...loadPoints, ...unloadPoints];
 
   if (!allPoints.length) {
@@ -197,8 +194,8 @@ function drawPdfChart(pdf, rows, x, y, w, h) {
   const plotW = w - 22;
   const plotH = h - 20;
 
-  const maxX = Math.max(...allPoints.map((p) => p.x), 1);
-  const maxY = Math.max(...allPoints.map((p) => p.y), 1);
+  const maxX = Math.max(...allPoints.map((p) => Number(p.x)), 1);
+  const maxY = Math.max(...allPoints.map((p) => Number(p.y)), 1);
 
   pdf.setDrawColor(80, 80, 80);
   pdf.line(plotX, plotY + plotH, plotX + plotW, plotY + plotH);
@@ -218,40 +215,42 @@ function drawPdfChart(pdf, rows, x, y, w, h) {
   pdf.text("Spostamento [mm]", plotX + plotW / 2, y + h - 3.2, { align: "center" });
   pdf.text("Carico calcolato [kN]", x + 4.4, plotY + plotH / 2, { angle: 90 });
 
-  pdf.setDrawColor(52, 107, 180);
-  pdf.setFillColor(52, 107, 180);
+  function px(p) {
+    return plotX + (Number(p.x) / maxX) * plotW;
+  }
 
-  let prev = null;
+  function py(p) {
+    return plotY + plotH - (Number(p.y) / maxY) * plotH;
+  }
 
-  loadPoints.forEach((p) => {
-    const px = plotX + (p.x / maxX) * plotW;
-    const py = plotY + plotH - (p.y / maxY) * plotH;
+  function drawSeries(points, color, isUnload = false) {
+    pdf.setDrawColor(...color);
+    pdf.setFillColor(...color);
 
-    if (prev) pdf.line(prev.x, prev.y, px, py);
+    let prev = null;
 
-    if (p.phase !== "origine") pdf.circle(px, py, 1, "F");
-    pdf.setFontSize(3.7);
-    pdf.text(String(p.label), px + 1.2, py - 1.5);
+    points.forEach((p) => {
+      const cx = px(p);
+      const cy = py(p);
 
-    prev = { x: px, y: py };
-  });
+      if (prev) pdf.line(prev.x, prev.y, cx, cy);
 
-  pdf.setDrawColor(150, 80, 80);
-  pdf.setFillColor(150, 80, 80);
+      if (p.phase !== "origine") {
+        pdf.circle(cx, cy, 1, "F");
+        pdf.setFontSize(3.7);
 
-  prev = null;
-  unloadPoints.forEach((p) => {
-    const px = plotX + (p.x / maxX) * plotW;
-    const py = plotY + plotH - (p.y / maxY) * plotH;
+        const label = safeText(p.name || p.label, "");
+        const cleanLabel = isUnload ? label.replace("Scarico ", "S") : label;
 
-    if (prev) pdf.line(prev.x, prev.y, px, py);
+        pdf.text(cleanLabel, cx + 1.2, cy - 1.5);
+      }
 
-    if (p.phase !== "origine") pdf.circle(px, py, 1, "F");
-    pdf.setFontSize(3.7);
-    pdf.text(String(p.label).replace("Scarico ", "S"), px + 1.2, py - 1.5);
+      prev = { x: cx, y: cy };
+    });
+  }
 
-    prev = { x: px, y: py };
-  });
+  drawSeries(loadPoints, [52, 107, 180], false);
+  drawSeries(unloadPoints, [150, 80, 80], true);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(4.6);
@@ -488,7 +487,7 @@ export async function exportReport({ data, result, photo = null, preview = false
   drawSection(pdf, ML, chartY, CW, "CURVA CARICO CALCOLATO - SPOSTAMENTO");
 
   const chartH = 56;
-  drawPdfChart(pdf, rows, ML, chartY + 5.5, CW, chartH);
+  drawPdfChart(pdf, result.chartLoad || [], result.chartUnload || [], ML, chartY + 5.5, CW, chartH);
 
   const bottomY = chartY + 5.5 + chartH + 4;
 
