@@ -3,18 +3,6 @@ const COUNTER = "tiranti_counter_v1";
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const SERVER_API = `${API_BASE}/archive.php`;
 
-function lightenRecord(record) {
-  return {
-    ...record,
-    photo: null,
-    photoCaption: record?.photoCaption || "",
-  };
-}
-
-function lightenList(list) {
-  return list.map(lightenRecord);
-}
-
 export function nextReportId() {
   const year = new Date().getFullYear();
   const raw = localStorage.getItem(COUNTER);
@@ -25,30 +13,20 @@ export function nextReportId() {
 }
 
 export function listTests() {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || "[]");
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
 }
 
 export function saveTest(record) {
-  const cleanRecord = lightenRecord(record);
   const list = listTests();
-  const idx = list.findIndex((x) => x.id === cleanRecord.id);
-  const next =
-    idx >= 0
-      ? list.map((x) => (x.id === cleanRecord.id ? cleanRecord : x))
-      : [cleanRecord, ...list];
-
+  const idx = list.findIndex((x) => x.id === record.id);
+  const next = idx >= 0 ? list.map((x) => x.id === record.id ? record : x) : [record, ...list];
   localStorage.setItem(KEY, JSON.stringify(next));
   return next;
 }
 
 export function writeTests(list) {
-  const cleanList = lightenList(list);
-  localStorage.setItem(KEY, JSON.stringify(cleanList));
-  return cleanList;
+  localStorage.setItem(KEY, JSON.stringify(list));
+  return list;
 }
 
 export async function loadServerTests() {
@@ -63,18 +41,16 @@ export async function loadServerTests() {
 }
 
 export async function syncServerTests(list) {
-  const cleanList = lightenList(list);
-
   try {
     const res = await fetch(SERVER_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ archive: cleanList }),
+      body: JSON.stringify({ archive: list }),
     });
     if (!res.ok) throw new Error("Server save failed");
-    return cleanList;
+    return list;
   } catch {
-    return cleanList;
+    return list;
   }
 }
 
