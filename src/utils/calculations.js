@@ -85,24 +85,21 @@ export function calcTirante({ readings, pressures, loadSteps, testLoad, calibrat
     unload: r.unload,
   });
 
-  const chartLoadPoints = rows
-  .filter((r) => !r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
-  .map(toChartPoint);
-
-  const chartLoad = chartLoadPoints.length
-  ? [{ x: 0, y: 0, pressure: 0, targetLoad: 0, name: "Origine", phase: "origine", unload: false }, ...chartLoadPoints]
-  : [];
+  const chartLoad = rows
+    .filter((r) => !r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
+    .map(toChartPoint);
 
   const chartUnloadPoints = rows
-  .filter((r) => r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
-  .map(toChartPoint);
+    .filter((r) => r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
+    .map(toChartPoint);
 
   const chartUnload =
-  max?.displacement !== null && max?.displacement !== undefined && Number.isFinite(Number(max.load))
-    ? [toChartPoint(max), ...chartUnloadPoints]
-    : chartUnloadPoints;
+    max && max.displacement !== null && Number.isFinite(Number(max.load))
+      ? [toChartPoint(max), ...chartUnloadPoints]
+      : chartUnloadPoints;
 
   const chartAll = [...chartLoad, ...chartUnload];
+
   return {
     rows,
     max,
