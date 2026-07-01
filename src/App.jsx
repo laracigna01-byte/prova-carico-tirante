@@ -45,7 +45,24 @@ export default function App() {
     syncServerTests(archive);
   }, [archive]);
 
-  const result = useMemo(() => calcTirante({ readings, pressures, loadSteps: LOAD_STEPS, testLoad: data.testLoad, calibrationCoeff: data.calibrationCoeff }), [readings, pressures, data.testLoad, data.calibrationCoeff]);
+  const result = useMemo(
+  () =>
+    calcTirante({
+      readings,
+      pressures,
+      loadSteps: LOAD_STEPS,
+      testLoad: data.testLoad,
+      calibrationCoeff: data.calibrationCoeff,
+      jackCapacityTon: data.jackCapacityTon,
+    }),
+  [
+    readings,
+    pressures,
+    data.testLoad,
+    data.calibrationCoeff,
+    data.jackCapacityTon,
+  ]
+);
   const errors = useMemo(() => validateTest({ data, result, photo }), [data, result, photo]);
 
   const setReading = (key, value) => setReadings((prev) => ({ ...prev, [key]: value }));
@@ -89,9 +106,22 @@ export default function App() {
   }
 
   function exportRecord(record) {
-    const recResult = calcTirante({ readings: record.readings, pressures: record.pressures, loadSteps: LOAD_STEPS, testLoad: record.data.testLoad, calibrationCoeff: record.data.calibrationCoeff });
-    exportReport({ data: record.data, result: recResult, photo: record.photo, chartNode: null });
-  }
+  const recResult = calcTirante({
+    readings: record.readings,
+    pressures: record.pressures,
+    loadSteps: LOAD_STEPS,
+    testLoad: record.data.testLoad,
+    calibrationCoeff: record.data.calibrationCoeff,
+    jackCapacityTon: record.data.jackCapacityTon,
+  });
+
+  exportReport({
+    data: record.data,
+    result: recResult,
+    photo: record.photo,
+    chartNode: null,
+  });
+}
 
   return (
     <main className="app-shell">
@@ -114,7 +144,9 @@ export default function App() {
       <section className="workbench">
         <div className="left-col">
           <SectionHeader label="Tabella prova - un comparatore" step="1" color={T.accentBlue} />
-          <p className="hint">Per ogni gradino inserisci solo le letture del comparatore. La pressione in bar viene calcolata automaticamente con la proporzione: carico massimo prova : 700 bar = carico gradino : x.</p>
+          <p className="hint">
+        Per ogni gradino inserisci solo le letture del comparatore. La pressione in bar viene calcolata automaticamente con la proporzione: <b>portata del martinetto : 700 bar = carico del gradino : x</b>.
+          </p>
           <div className="steps one-col">
             {result.rows.map((row, index) => (
               <StepTable

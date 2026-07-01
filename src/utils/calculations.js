@@ -37,15 +37,32 @@ function calcValidReading(values) {
   };
 }
 
-export function buildRows({ readings, pressures, loadSteps, testLoad, calibrationCoeff }) {
+export function buildRows({
+  readings,
+  pressures,
+  loadSteps,
+  testLoad,
+  calibrationCoeff,
+  jackCapacityTon,
+}) {
   const Nc = toNumber(testLoad, 0);
   const coeff = toNumber(calibrationCoeff, null);
+
+  // Conversione tonnellate -> kN
+  const jackCapacity = toNumber(jackCapacityTon, 0) * 9.81;
 
   return loadSteps.map((step, index) => {
     const values = normalizeReadings(readings?.[step.key]);
     const readingData = calcValidReading(values);
+
     const targetLoad = round(Nc * step.factor, 2);
-    const pressure = Nc > 0 ? round((targetLoad * 700) / Nc, 2) : null;
+
+    // NUOVA FORMULA
+    const pressure =
+      jackCapacity > 0
+        ? round((targetLoad * 700) / jackCapacity, 2)
+        : null;
+
     const measuredLoad = targetLoad;
     const load = targetLoad;
 
@@ -66,10 +83,28 @@ export function buildRows({ readings, pressures, loadSteps, testLoad, calibratio
   });
 }
 
-export function calcTirante({ readings, pressures, loadSteps, testLoad, calibrationCoeff }) {
-  const rows = buildRows({ readings, pressures, loadSteps, testLoad, calibrationCoeff });
+export function calcTirante({
+  readings,
+  pressures,
+  loadSteps,
+  testLoad,
+  calibrationCoeff,
+  jackCapacityTon,
+}) {
+  const rows = buildRows({
+    readings,
+    pressures,
+    loadSteps,
+    testLoad,
+    calibrationCoeff,
+    jackCapacityTon,
+  });
+
   const max = rows.find((r) => r.key === "p100") || null;
-  const unload = rows.find((r) => r.isResidual) || rows.filter((r) => r.unload).at(-1) || null;
+  const unload =
+    rows.find((r) => r.isResidual) ||
+    rows.filter((r) => r.unload).at(-1) ||
+    null;
 
   const measuredCount = rows.filter((r) => r.reading !== null).length;
   const maxDisplacement = max?.displacement ?? null;
@@ -85,27 +120,37 @@ export function calcTirante({ readings, pressures, loadSteps, testLoad, calibrat
     unload: r.unload,
   });
 
-  
   const chartLoadPoints = rows
-  .filter((r) => !r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
-  .map(toChartPoint);
+    .filter(
+      (r) =>
+        !r.unload &&
+        r.displacement !== null &&
+        Number.isFinite(Number(r.load))
+    )
+    .map(toChartPoint);
 
   const chartLoad = chartLoadPoints.length
-  ? [
-      {
-        x: 0,
-        y: 0,
-        pressure: 0,
-        targetLoad: 0,
-        name: "Origine",
-        phase: "origine",
-        unload: false,
-      },
-      ...chartLoadPoints,
-    ]
-  : [];
+    ? [
+        {
+          x: 0,
+          y: 0,
+          pressure: 0,
+          targetLoad: 0,
+          name: "Origine",
+          phase: "origine",
+          unload: false,
+        },
+        ...chartLoadPoints,
+      ]
+    : [];
+
   const chartUnloadPoints = rows
-    .filter((r) => r.unload && r.displacement !== null && Number.isFinite(Number(r.load)))
+    .filter(
+      (r) =>
+        r.unload &&
+        r.displacement !== null &&
+        Number.isFinite(Number(r.load))
+    )
     .map(toChartPoint);
 
   const chartUnload =
@@ -126,7 +171,7 @@ export function calcTirante({ readings, pressures, loadSteps, testLoad, calibrat
     chartUnload,
     chartAll,
     formula:
-      "Pressione [bar] calcolata automaticamente con proporzione: carico massimo prova : 700 bar = carico gradino : x. Esempio: 300 kN : 700 bar = 150 kN : 350 bar.",
+      "Pressione [bar] calcolata automaticamente con proporzione: portata del martinetto : 700 bar = carico del gradino : x.",
   };
 }
 
@@ -136,8 +181,10 @@ export function validateTest({ data, result, photo }) {
   if (!data.anchorId) errors.push("Identificativo tirante mancante");
   if (!data.testLoad) errors.push("Carico di collaudo Nc mancante");
   if (!data.exerciseLoad) errors.push("Carico di esercizio Ne mancante");
-  if (!data.testLoad || Number(data.testLoad) <= 0) errors.push("Carico massimo della prova mancante");
-  if (result.measuredCount === 0) errors.push("Inserire almeno una lettura del comparatore");
+  if (!data.testLoad || Number(data.testLoad) <= 0)
+    errors.push("Carico massimo della prova mancante");
+  if (result.measuredCount === 0)
+    errors.push("Inserire almeno una lettura del comparatore");
   if (!photo) errors.push("Foto della prova mancante");
   if (!data.tecnico) errors.push("Tecnico esecutore mancante");
 

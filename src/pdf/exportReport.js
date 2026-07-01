@@ -375,14 +375,29 @@ export async function exportReport({ data, result, photo = null, preview = false
   ly += h;
 
   drawCompactCell(pdf, leftX, ly, w4, h, "Carico collaudo Nc", `${safeText(data.testLoad, "—")} kN`);
-  drawCompactCell(pdf, leftX + w4, ly, w4, h, "Martinetto", data.jackId);
+  drawCompactCell(
+  pdf,
+  leftX + w4,
+  ly,
+  w4,
+  h,
+  "Martinetto",
+  `${safeText(data.jackId, "—")} (${safeText(data.jackCapacityTon, "30")} t)`
+);
   drawCompactCell(pdf, leftX + 2 * w4, ly, w4, h, "Manometro/cella", data.manometerId);
   drawCompactCell(pdf, leftX + 3 * w4, ly, w4, h, "Comparatore", data.comparatorId);
   ly += h;
 
   drawCompactCell(pdf, leftX, ly, w3, h, "Fondo scala manometro", "700 bar");
-  drawCompactCell(pdf, leftX + w3, ly, w3 * 2, h, "Formula pressione", "bar = carico gradino x 700 / carico massimo prova");
-  ly += h + 2;
+  drawCompactCell(
+  pdf,
+  leftX + w3,
+  ly,
+  w3 * 2,
+  h,
+  "Formula pressione",
+  "bar = carico gradino x 700 / portata martinetto"
+);
 
   ly = drawSection(pdf, leftX, ly, leftW, "TABELLA DI PROVA");
 
@@ -460,7 +475,8 @@ export async function exportReport({ data, result, photo = null, preview = false
   ry += photoH + 3;
 
   const noteText = data.note || "Nessuna nota inserita.";
-  const helpText = "Pressione bar inserita dal tecnico dalla lettura del manometro. Carico applicato [kN] = pressione [bar] x coefficiente di taratura [kN/bar] del martinetto.";
+  const helpText =
+  "La pressione viene calcolata automaticamente con la proporzione: portata del martinetto : 700 bar = carico del gradino : x.";
   const noteLines = pdf.splitTextToSize(noteText, rightW - 4);
   const helpLines = pdf.splitTextToSize(helpText, rightW - 4);
   const noteBoxHeight = 6 + noteLines.length * 2.4 + 1.2 + helpLines.length * 2.4 + 2;

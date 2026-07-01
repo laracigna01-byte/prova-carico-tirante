@@ -41,6 +41,7 @@ export const DEFAULT_PROJECT = {
   testFactor: 1.20,
   testLoad: "",
   jackId: "30",
+  jackCapacityTon: 30,
   manometerId: "700",
   comparatorId: "",
   calibrationCoeff: "",
