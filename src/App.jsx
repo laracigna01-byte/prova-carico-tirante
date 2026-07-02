@@ -86,20 +86,56 @@ export default function App() {
   }
 
   function openRecord(record) {
-    setData(record.data);
-    setReadings(record.readings || initialReadings());
-    setPressures(record.pressures || initialPressures());
-    setPhoto(record.photo || null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  const restoredData = {
+    ...DEFAULT_PROJECT,
+    ...(record.data || {}),
+  };
 
-  function duplicateRecord(record) {
-    setData({ ...record.data, reportId: nextReportId(), anchorId: `${record.data.anchorId || "T"}-COPIA` });
-    setReadings(record.readings || initialReadings());
-    setPressures(record.pressures || initialPressures());
-    setPhoto(record.photo || null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  const restoredReadings = {
+    ...initialReadings(),
+    ...(record.readings || {}),
+  };
+
+  const restoredPressures = {
+    ...initialPressures(),
+    ...(record.pressures || {}),
+  };
+
+  setData(restoredData);
+  setReadings(restoredReadings);
+  setPressures(restoredPressures);
+  setPhoto(record.photo || null);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function duplicateRecord(record) {
+  const newId = nextReportId();
+
+  const duplicatedData = {
+    ...DEFAULT_PROJECT,
+    ...(record.data || {}),
+    reportId: newId,
+    anchorId: `${record.data?.anchorId || "T"}-COPIA`,
+  };
+
+  const duplicatedReadings = {
+    ...initialReadings(),
+    ...(record.readings || {}),
+  };
+
+  const duplicatedPressures = {
+    ...initialPressures(),
+    ...(record.pressures || {}),
+  };
+
+  setData(duplicatedData);
+  setReadings(duplicatedReadings);
+  setPressures(duplicatedPressures);
+  setPhoto(record.photo || null);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
   function exportCurrent() {
     exportReport({ data, result, photo });

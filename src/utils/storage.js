@@ -1,61 +1,214 @@
-const KEY = "tiranti_archive_v1";
+const KEY = "tiranti_archive_v2";
+const LEGACY_KEY = "tiranti_archive_v1";
 const COUNTER = "tiranti_counter_v1";
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
-const SERVER_API = `${API_BASE}/archive.php`;
+const DB_NAME = "prova_carico_tiranti_db";
+const DB_VERSION = 1;
+const STORE = "tests";
+
+function safeJsonParse(value, fallback) {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function sortTests(list) {
+  return [...(list || [])].sort((a, b) => {
+    const da = new Date(a?.savedAt || 0).getTime();
+    const db = new Date(b?.savedAt || 0).getTime();
+    return db - da;
+  });
+}
+
+function canUseIndexedDb() {
+  return typeof indexedDB !== "undefined";
+}
+
+function openDb() {
+  if (!canUseIndexedDb()) return Promise.resolve(null);
+
+  return new Promise((resolve) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE)) {
+        db.createObjectStore(STORE, { keyPath: "id" });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => resolve(null);
+    request.onblocked = () => resolve(null);
+  });
+}
+
+async function idbGetAll() {
+  const db = await openDb();
+  if (!db) return [];
+
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE, "readonly");
+    const store = tx.objectStore(STORE);
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(sortTests(request.result || []));
+    request.onerror = () => resolve([]);
+    tx.oncomplete = () => db.close();
+    tx.onerror = () => db.close();
+  });
+}
+
+async function idbPut(record) {
+  const db = await openDb();
+  if (!db) return false;
+
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).put(record);
+
+    tx.oncomplete = () => {
+      db.close();
+      resolve(true);
+    };
+
+    tx.onerror = () => {
+      db.close();
+      resolve(false);
+    };
+  });
+}
+
+async function idbDelete(id) {
+  const db = await openDb();
+  if (!db) return false;
+
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(id);
+
+    tx.oncomplete = () => {
+      db.close();
+      resolve(true);
+    };
+
+    tx.onerror = () => {
+      db.close();
+      resolve(false);
+    };
+  });
+}
+
+async function idbWriteAll(list) {
+  const db = await openDb();
+  if (!db) return false;
+
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE, "readwrite");
+    const store = tx.objectStore(STORE);
+
+    store.clear();
+    (list || []).forEach((record) => store.put(record));
+
+    tx.oncomplete = () => {
+      db.close();
+      resolve(true);
+    };
+
+    tx.onerror = () => {
+      db.close();
+      resolve(false);
+    };
+  });
+}
+
+function writeLocalSnapshot(list) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(sortTests(list)));
+  } catch {
+    // Se foto/firme rendono l'archivio troppo grande per localStorage,
+    // IndexedDB resta la memoria principale della PWA.
+  }
+}
 
 export function nextReportId() {
   const year = new Date().getFullYear();
   const raw = localStorage.getItem(COUNTER);
-  const state = raw ? JSON.parse(raw) : { year, n: 0 };
+  const state = safeJsonParse(raw, { year, n: 0 });
   const n = state.year === year ? state.n + 1 : 1;
+
   localStorage.setItem(COUNTER, JSON.stringify({ year, n }));
   return `TIR-${year}-${String(n).padStart(3, "0")}`;
 }
 
 export function listTests() {
-  try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
+  const current = safeJsonParse(localStorage.getItem(KEY), null);
+  if (Array.isArray(current)) return sortTests(current);
+
+  const legacy = safeJsonParse(localStorage.getItem(LEGACY_KEY), []);
+  if (Array.isArray(legacy) && legacy.length) {
+    writeLocalSnapshot(legacy);
+    idbWriteAll(legacy);
+    return sortTests(legacy);
+  }
+
+  return [];
+}
+
+export async function loadServerTests() {
+  const indexed = await idbGetAll();
+
+  if (indexed.length) {
+    writeLocalSnapshot(indexed);
+    return indexed;
+  }
+
+  const local = listTests();
+
+  if (local.length) {
+    await idbWriteAll(local);
+  }
+
+  return local;
+}
+
+export async function syncServerTests(list) {
+  const sorted = sortTests(list);
+  writeLocalSnapshot(sorted);
+  await idbWriteAll(sorted);
+  return sorted;
+}
+
+export function writeTests(list) {
+  const sorted = sortTests(list);
+  writeLocalSnapshot(sorted);
+  idbWriteAll(sorted);
+  return sorted;
 }
 
 export function saveTest(record) {
   const list = listTests();
   const idx = list.findIndex((x) => x.id === record.id);
-  const next = idx >= 0 ? list.map((x) => x.id === record.id ? record : x) : [record, ...list];
-  localStorage.setItem(KEY, JSON.stringify(next));
-  return next;
-}
 
-export function writeTests(list) {
-  localStorage.setItem(KEY, JSON.stringify(list));
-  return list;
-}
+  const next =
+    idx >= 0
+      ? list.map((x) => (x.id === record.id ? record : x))
+      : [record, ...list];
 
-export async function loadServerTests() {
-  try {
-    const res = await fetch(SERVER_API, { cache: "no-store" });
-    if (!res.ok) throw new Error("Server load failed");
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return listTests();
-  }
-}
+  const sorted = sortTests(next);
 
-export async function syncServerTests(list) {
-  try {
-    const res = await fetch(SERVER_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ archive: list }),
-    });
-    if (!res.ok) throw new Error("Server save failed");
-    return list;
-  } catch {
-    return list;
-  }
+  writeLocalSnapshot(sorted);
+  idbPut(record);
+
+  return sorted;
 }
 
 export function deleteTest(id) {
   const next = listTests().filter((x) => x.id !== id);
-  localStorage.setItem(KEY, JSON.stringify(next));
+
+  writeLocalSnapshot(next);
+  idbDelete(id);
+
   return next;
 }
