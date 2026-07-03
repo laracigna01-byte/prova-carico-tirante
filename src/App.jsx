@@ -129,14 +129,20 @@ function duplicateRecord(record) {
     ...(record.pressures || {}),
   };
 
-  setData(duplicatedData);
-  setReadings(duplicatedReadings);
-  setPressures(duplicatedPressures);
-  setPhoto(record.photo || null);
+  const duplicatedRecord = {
+    id: newId,
+    savedAt: new Date().toISOString(),
+    data: duplicatedData,
+    readings: duplicatedReadings,
+    pressures: duplicatedPressures,
+    photo: record.photo || null,
+  };
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  setArchive(saveTest(duplicatedRecord));
+  openRecord(duplicatedRecord);
+
+  window.alert(`Prova duplicata come ${newId}.`);
 }
-
   function exportCurrent() {
     exportReport({ data, result, photo });
   }
