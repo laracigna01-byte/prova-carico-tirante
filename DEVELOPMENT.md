@@ -1,10 +1,18 @@
-# DEVELOPMENT.md
 # Manuale tecnico di sviluppo – Applicazioni DISMAT
 
-Versione documento: 1.0
+**Versione documento:** 1.0.0
+**Autore:** Lara Maria Cigna 
+**Aiuto sviluppo:** OpenAI ChatGPT
 
-Ultimo aggiornamento: Luglio 2026
+**Ultimo aggiornamento:** Luglio 2026
 
+**Stato:** In evoluzione
+
+**Applicazioni documentate:**
+
+- Prova di carico su pali
+- Prova di carico su tirante
+- Prova di carico su piastra
 ---
 
 # Indice
@@ -477,3 +485,19 @@ Le tre prove seguono normative differenti e hanno flussi operativi diversi, ma c
 Le tre applicazioni devono evolvere insieme.
 
 Ogni nuova funzionalità sviluppata per una di esse deve essere valutata per essere riportata anche sulle altre, mantenendo il codice il più possibile uniforme, leggibile e facilmente manutenibile.
+---
+
+# Storico documento
+
+## Versione 1.0.0 – Luglio 2026
+
+- Creazione del manuale tecnico.
+- Definizione dell'architettura comune.
+- Documentazione archivio IndexedDB.
+- Workflow Git.
+- Regole di sviluppo.
+- Descrizione delle tre applicazioni.
+
+---
+
+Il presente documento deve essere aggiornato ogni volta che viene introdotta una modifica strutturale comune alle applicazioni DISMAT.
