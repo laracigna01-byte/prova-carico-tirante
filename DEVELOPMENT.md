@@ -1,85 +1,244 @@
-\# Guida sviluppo applicazioni DISMAT
+# DEVELOPMENT.md
+# Manuale tecnico di sviluppo – Applicazioni DISMAT
 
+Versione documento: 1.0
 
+Ultimo aggiornamento: Luglio 2026
 
-\## Applicazioni
+---
 
+# Indice
 
+1. Scopo del progetto
+2. Filosofia di sviluppo
+3. Architettura comune
+4. Struttura del progetto
+5. Componenti condivisi
+6. Gestione archivio prove
+7. Generazione PDF
+8. Progressive Web App (PWA)
+9. Git, Build e Deploy
+10. Convenzioni di sviluppo
+11. Applicazione Prova di Carico su Pali
+12. Applicazione Prova di Carico su Tiranti
+13. Applicazione Prova di Carico su Piastra
+14. Roadmap
+15. Decisioni progettuali
 
-Le tre applicazioni DISMAT sono:
+---
 
+# 1. Scopo del progetto
 
+Le applicazioni DISMAT sono state sviluppate per consentire la gestione completa delle prove di carico geotecniche direttamente in cantiere.
 
-\- Prova di carico su pali
+Le tre applicazioni sono:
 
-\- Prova di carico su tiranti
+- Prova di carico su pali
+- Prova di carico su tiranti
+- Prova di carico su piastra
 
-\- Prova di carico su piastra
+Sono applicazioni web sviluppate in React e distribuite come Progressive Web App (PWA).
 
+Obiettivi principali:
 
+- utilizzo da PC e smartphone
+- funzionamento offline
+- compilazione rapida durante la prova
+- generazione immediata del verbale PDF
+- archiviazione locale delle prove
+- interfaccia semplice per il tecnico di cantiere
 
-Le tre app devono evolvere insieme e mantenere una struttura simile.
+Le tre applicazioni devono mantenere una struttura software il più possibile uniforme.
 
+---
 
+# 2. Filosofia di sviluppo
 
-\---
+Ogni modifica deve rispettare alcuni principi fondamentali.
 
+## Uniformità
 
+Quando una funzionalità viene migliorata in una applicazione occorre sempre valutare se debba essere riportata anche nelle altre.
 
-\## Regola principale
+Ad esempio:
 
+- archivio
+- PDF
+- grafici
+- firma
+- tema
+- esportazione CSV
+- ricerca
+- salvataggio dati
 
+L'obiettivo è evitare che le tre applicazioni evolvano in modo diverso.
 
-Quando una funzionalità viene migliorata in una app, valutare sempre se riportarla anche sulle altre due.
+---
 
+## Piccole modifiche
 
+Preferire modifiche piccole e facilmente verificabili.
+
+Procedura consigliata:
+
+1. implementazione
+2. test locale
+3. build
+4. commit
+5. push
+6. deploy
+
+---
+
+# 3. Architettura comune
+
+Tutte le applicazioni seguono la stessa architettura logica.
+
+```
+Utente
+
+↓
+
+Interfaccia React
+
+↓
+
+Componenti
+
+↓
+
+Calcoli
+
+↓
+
+Archivio
+
+↓
+
+PDF
+```
+
+La logica di calcolo deve essere separata dalla logica dell'interfaccia.
+
+---
+
+# 4. Struttura del progetto
+
+```
+src/
+
+components/
+config/
+pdf/
+utils/
+assets/
+```
+
+## components
+
+Contiene tutti i componenti React.
+
+Ad esempio:
+
+- Header
+- InfoPanel
+- StepTable
+- Results
+- Archive
+- SignaturePad
+
+---
+
+## config
+
+Costanti di configurazione.
 
 Esempi:
 
+- gradini prova
+- colori
+- impostazioni iniziali
 
+---
 
-\- archivio prove
+## utils
 
-\- PDF
+Funzioni di utilità.
 
-\- firma
+Ad esempio:
 
-\- salvataggio dati
+- calcoli
+- archivio
+- formatter
+- esportazione CSV
 
-\- grafico
+---
 
-\- esportazione CSV/Excel
+## pdf
 
-\- compatibilità PWA/mobile
+Generazione del verbale PDF.
 
+---
 
+## assets
 
-\---
+Loghi e immagini statiche.
 
+---
 
+# 5. Componenti condivisi
 
-\## Archivio prove
+Le tre applicazioni devono mantenere gli stessi componenti principali.
 
+Header
 
+Gestisce titolo e tema.
 
-L'archivio deve usare sempre:
+InfoPanel
 
+Contiene tutti i dati generali della prova.
 
+StepTable
 
-\- IndexedDB come archivio principale
+Gestisce l'inserimento delle letture.
 
-\- localStorage come snapshot/fallback
+Results
 
-\- migrazione automatica dai vecchi archivi
+Mostra risultati, grafico ed esito.
 
+SignaturePad
 
+Firma elettronica del tecnico.
 
-API comune:
+Archive
 
+Archivio prove.
 
+---
 
-```js
+# 6. Gestione archivio prove
 
+L'archivio utilizza la stessa logica nelle tre applicazioni.
+
+## Memoria principale
+
+IndexedDB
+
+## Backup
+
+localStorage
+
+Il localStorage viene mantenuto esclusivamente come:
+
+- snapshot
+- migrazione
+- fallback
+
+---
+
+API comuni
+
+```
 listTests()
 
 saveTest()
@@ -93,230 +252,228 @@ loadServerTests()
 syncServerTests()
 
 nextReportId()
+```
 
-Ogni archivio deve avere:
+---
 
+Ogni archivio deve permettere:
 
+- Apri
+- Duplica
+- PDF
+- Elimina
+- Ricerca
+- Ordinamento cronologico
+- Conferma eliminazione
 
-Apri
+---
 
-Duplica
-
-PDF
-
-Elimina
-
-ricerca
-
-conferma prima dell'eliminazione
-
-Flusso Git corretto
-
-
-
-Prima di lavorare:
-
-
-
-pwd
-
-git remote -v
-
-git status
-
-
-
-Prima di fare commit:
-
-
-
-npm run build
-
-
-
-Commit standard:
-
-
-
-git add .
-
-git commit -m "Descrizione modifica"
-
-git push origin main
-
-
-
-Se il push viene rifiutato:
-
-
-
-git pull --rebase origin main
-
-git push origin main
-
-PDF
-
-
+# 7. Generazione PDF
 
 Ogni PDF deve contenere:
 
+- dati della prova
+- tabella risultati
+- grafico
+- foto
+- firma
+- esito
+- riferimenti normativi
 
+Obiettivo:
 
-dati generali della prova
+un solo foglio A4 professionale.
 
-tabella letture
+---
 
-grafico
+# 8. Progressive Web App
 
-foto
+Le applicazioni devono funzionare come PWA.
 
-firma
+Devono essere mantenuti:
 
-esito
+- manifest.webmanifest
+- service-worker.js
 
-riferimenti normativi
+L'app deve funzionare correttamente:
 
+- desktop
+- smartphone
+- Android
+- iPhone
+- modalità offline
 
+---
 
-Obiettivo: PDF A4 leggibile e professionale.
+# 9. Git, Build e Deploy
 
-
-
-PWA e mobile
-
-
-
-Le app devono funzionare bene su:
-
-
-
-PC
-
-smartphone
-
-app aggiunta alla schermata Home
-
-Safari iPhone
-
-Chrome Android
-
-
-
-Non rimuovere:
-
-
-
-manifest.webmanifest
-
-service-worker.js
-
-logica IndexedDB
-
-App pali
-
-
-
-Caratteristiche principali:
-
-
-
-18 gradini
-
-3 comparatori
-
-9 letture per comparatore
-
-stabilità sulle prime 3 letture
-
-grafico carico/cedimento
-
-PDF su una pagina A4
-
-archivio IndexedDB
-
-App tiranti
-
-
-
-Caratteristiche principali:
-
-
-
-un comparatore
-
-pressione automatica/calcolata
-
-grafico carico/spostamento
-
-firma
-
-foto
-
-archivio IndexedDB
-
-duplicazione prove salvata in archivio
-
-App piastra
-
-
-
-Caratteristiche principali:
-
-
-
-prova secondo CNR 146/92
-
-primo ciclo e secondo ciclo
-
-calcolo Md e Md'
-
-rapporto Md/Md'
-
-firma elettronica
-
-foto
-
-tema chiaro/scuro
-
-archivio IndexedDB
-
-Regola finale
-
-
-
-Non modificare tante cose insieme.
-
-
-
-Procedura consigliata:
-
-
-
-una modifica
-
-test locale
-
-npm run build
-
-commit
-
-push
-
-
-
-Salva e chiudi.
-
-
-
-Poi fai:
-
-
+Prima di lavorare:
 
 ```powershell
+pwd
+git remote -v
+git status
+```
 
-git add DEVELOPMENT.md
+Prima del commit:
 
-git commit -m "Aggiunge guida sviluppo applicazioni DISMAT"
+```powershell
+npm run build
+```
+
+Procedura standard:
+
+```powershell
+git add .
+
+git commit -m "Descrizione"
 
 git push origin main
+```
 
+Se compare:
+
+```
+non-fast-forward
+```
+
+utilizzare:
+
+```powershell
+git pull --rebase origin main
+
+git push origin main
+```
+
+---
+
+# 10. Convenzioni di sviluppo
+
+ID prove:
+
+```
+PAL-AAAA-001
+
+TIR-AAAA-001
+
+PIA-AAAA-001
+```
+
+I commit devono descrivere chiaramente la modifica.
+
+Esempi:
+
+```
+Aggiunge archivio IndexedDB
+
+Migliora PDF
+
+Corregge duplicazione archivio
+```
+
+---
+
+# 11. Prova di carico su Pali
+
+Caratteristiche principali:
+
+- 18 gradini
+- 3 comparatori
+- 9 letture per comparatore
+- verifica stabilità sulle prime 3 letture
+- grafico carico/cedimento
+- foto
+- firma
+- PDF A4
+- archivio IndexedDB
+
+---
+
+# 12. Prova di carico su Tiranti
+
+Caratteristiche principali:
+
+- un comparatore
+- pressione automatica
+- grafico carico/spostamento
+- foto
+- firma
+- PDF A4
+- archivio IndexedDB
+
+---
+
+# 13. Prova di carico su Piastra
+
+Normativa principale:
+
+CNR 146/92
+
+Funzionalità:
+
+- primo ciclo
+- secondo ciclo
+- Md
+- Md'
+- rapporto Md/Md'
+- foto
+- firma
+- PDF A4
+- archivio IndexedDB
+
+---
+
+# 14. Roadmap
+
+## Completato
+
+- Archivio IndexedDB
+- Ricerca archivio
+- Duplica
+- PDF
+- Firma elettronica
+- Tema chiaro/scuro
+- Compatibilità PWA
+
+---
+
+## Futuro
+
+- Backup cloud
+- Esportazione ZIP archivio
+- Dashboard statistiche
+- Sincronizzazione tra dispositivi
+- Ricerca avanzata
+- Gestione utenti
+
+---
+
+# 15. Decisioni progettuali
+
+## Perché React
+
+Per mantenere componenti riutilizzabili e separare interfaccia e logica.
+
+## Perché Vite
+
+Build molto veloce e ottima esperienza di sviluppo.
+
+## Perché IndexedDB
+
+Permette di archiviare grandi quantità di dati (comprese fotografie) e funziona offline.
+
+## Perché PWA
+
+Consente l'utilizzo direttamente in cantiere senza installare applicazioni native.
+
+## Perché tre applicazioni separate
+
+Le tre prove seguono normative differenti e hanno flussi operativi diversi, ma condividono la stessa architettura software.
+
+---
+
+# Regola finale
+
+Le tre applicazioni devono evolvere insieme.
+
+Ogni nuova funzionalità sviluppata per una di esse deve essere valutata per essere riportata anche sulle altre, mantenendo il codice il più possibile uniforme, leggibile e facilmente manutenibile.
