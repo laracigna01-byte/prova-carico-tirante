@@ -171,6 +171,7 @@ function duplicateRecord(record) {
       <Header
         theme={theme}
         setTheme={setTheme}
+      
       />
 
       <InfoPanel data={data} setData={setData} photo={photo} setPhoto={setPhoto} />

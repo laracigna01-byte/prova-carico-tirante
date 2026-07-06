@@ -1,4 +1,8 @@
+import { useAuth } from "../security/AuthContext";
+
 export function Header({ theme, setTheme }) {
+  const { logout } = useAuth();
+
   return (
     <header className="app-header">
       <div className="brand">
@@ -11,15 +15,24 @@ export function Header({ theme, setTheme }) {
 
       <div className="header-title">
         <b>Prova di carico su tirante</b>
-        <span>Acquisizione letture · prova su minuta · PDF responsive con foto e grafico</span>
 
-        <button
-          type="button"
-          className="theme-btn"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {theme === "dark" ? "☀️ Passa al chiaro" : "🌙 Passa allo scuro"}
-        </button>
+        <span>
+          Acquisizione letture · prova su minuta · PDF responsive con foto e grafico
+        </span>
+
+        <div className="header-actions">
+          <button
+            type="button"
+            className="theme-btn"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? "☀️ Passa al chiaro" : "🌙 Passa allo scuro"}
+          </button>
+
+          <button type="button" className="logout-btn" onClick={logout}>
+            🔒 Esci
+          </button>
+        </div>
       </div>
     </header>
   );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { isAuthenticated, logout } from "./auth";
 import { LoginPage } from "./LoginPage";
+import { AuthContext } from "./AuthContext";
 import "./loginGate.css";
 
 export function LoginGate({ children, appName = "Sistema Gestione Prove DISMAT" }) {
@@ -21,15 +22,8 @@ export function LoginGate({ children, appName = "Sistema Gestione Prove DISMAT" 
   }
 
   return (
-    <>
-      <div className="dismat-auth-bar">
-        <span>Accesso autorizzato</span>
-        <button type="button" onClick={handleLogout}>
-          Esci
-        </button>
-      </div>
-
+    <AuthContext.Provider value={{ logout: handleLogout }}>
       {children}
-    </>
+    </AuthContext.Provider>
   );
 }

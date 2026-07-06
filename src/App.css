@@ -282,3 +282,24 @@ body.theme-light .pressure-row input {
   .pressure-row { grid-template-columns: 1fr; }
   .pressure-row input { min-height: 46px; font-size: 16px; }
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.logout-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #d71920;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background: #b9151b;
+}
