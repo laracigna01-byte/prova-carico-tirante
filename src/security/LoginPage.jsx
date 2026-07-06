@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login } from "./auth";
 
-export function LoginPage({ appName, onSuccess }) {
+export function LoginPage({ appName, moduleName, onSuccess }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,11 +33,20 @@ export function LoginPage({ appName, onSuccess }) {
         />
 
         <h1>{appName}</h1>
-        <h2>Area riservata ai tecnici autorizzati</h2>
 
-        <p className="dismat-login-text">
-          Inserire le credenziali fornite da DISMAT per accedere all'applicazione.
-        </p>
+{moduleName && (
+  <h2 className="dismat-module-title">
+    {moduleName}
+  </h2>
+)}
+
+<h3 className="dismat-login-subtitle">
+  Area riservata ai tecnici autorizzati
+</h3>
+
+<p className="dismat-login-text">
+  Inserire le credenziali fornite da DISMAT per accedere all'applicazione.
+</p>
 
         <form onSubmit={handleSubmit} className="dismat-login-form">
           <label>

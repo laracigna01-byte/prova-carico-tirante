@@ -4,7 +4,11 @@ import { LoginPage } from "./LoginPage";
 import { AuthContext } from "./AuthContext";
 import "./loginGate.css";
 
-export function LoginGate({ children, appName = "Sistema Gestione Prove DISMAT" }) {
+export function LoginGate({
+  children,
+  appName = "Sistema Gestione Prove DISMAT",
+  moduleName = "",
+}) {
   const [authenticated, setAuthenticated] = useState(isAuthenticated());
 
   function handleLogout() {
@@ -16,6 +20,7 @@ export function LoginGate({ children, appName = "Sistema Gestione Prove DISMAT" 
     return (
       <LoginPage
         appName={appName}
+        moduleName={moduleName}
         onSuccess={() => setAuthenticated(true)}
       />
     );

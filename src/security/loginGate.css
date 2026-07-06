@@ -199,3 +199,16 @@
     padding: 8px 12px;
   }
 }
+.dismat-module-title {
+  margin: 10px 0 6px;
+  color: #d71920;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dismat-login-subtitle {
+  margin: 0 0 18px;
+  color: #d71920;
+  font-size: 15px;
+  font-weight: 700;
+}
