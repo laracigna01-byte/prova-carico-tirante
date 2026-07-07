@@ -168,7 +168,7 @@ function duplicateRecord(record) {
     return (
   <LoginGate 
       appName="Sistema Gestione Prove DISMAT"
-      moduleName="Prova di carico su palo"
+      moduleName="Prova di carico su tirante"
       >
     <main className="app-shell">
       <Header
