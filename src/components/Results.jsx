@@ -12,10 +12,10 @@ function Tip({ active, payload }) {
 export function LoadDisplacementChart({ result }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ScatterChart margin={{ top: 10, right: 18, bottom: 24, left: 8 }}>
+      <ScatterChart margin={{ top: 38, right: 18, bottom: 8, left: 20 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-        <XAxis type="number" dataKey="x" name="Carico" unit=" kN" domain={[0, "dataMax + 10"]} stroke={T.textMuted} label={{ value: "Carico [kN]", position: "insideBottom", offset: -12 }} />
-        <YAxis type="number" dataKey="y" name="Spostamento" unit=" mm" reversed domain={["auto", "auto"]} stroke={T.textMuted} label={{ value: "Spostamento assoluto [mm]", angle: -90, position: "insideLeft" }} />
+        <XAxis type="number" dataKey="x" name="Carico" unit=" kN" orientation="top" domain={[0, "dataMax + 10"]} stroke={T.textMuted} label={{ value: "Carico [kN]", position: "insideTop", offset: -24 }} />
+        <YAxis type="number" dataKey="y" name="Spostamento" unit=" mm" reversed domain={["auto", "auto"]} stroke={T.textMuted} label={{ value: "Spostamento [mm]", angle: -90, position: "insideLeft", offset: 0 }} />
         <Tooltip content={<Tip />} />
         <Legend />
         <Scatter name="Carico" data={result.chartLoad} line={{ stroke: T.cycle1, strokeWidth: 2 }} fill={T.cycle1} />
