@@ -225,7 +225,7 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
     return plotY + plotH - ((Number(p.y) - minY) / yRange) * plotH;
   }
 
-  function drawSeries(points, color, isUnload = false) {
+  function drawSeries(points, color) {
     pdf.setDrawColor(...color);
     pdf.setFillColor(...color);
 
@@ -237,22 +237,17 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
 
       if (prev) pdf.line(prev.x, prev.y, cx, cy);
 
-      if (p.phase !== "origine") {
-        pdf.circle(cx, cy, 1, "F");
-        pdf.setFontSize(3.7);
-
-        const label = safeText(p.name || p.label, "");
-        const cleanLabel = isUnload ? label.replace("Scarico ", "S") : label;
-
-        pdf.text(cleanLabel, cx + 1.2, cy - 1.5);
-      }
+      // Le etichette di tutti i gradini si sovrappongono quando piu'
+      // letture hanno lo stesso carico (permanenze al 100%).
+      // La legenda identifica le curve; ogni punto resta visibile.
+      pdf.circle(cx, cy, 0.8, "F");
 
       prev = { x: cx, y: cy };
     });
   }
 
-  drawSeries(loadPoints, [52, 107, 180], false);
-  drawSeries(unloadPoints, [150, 80, 80], true);
+  drawSeries(loadPoints, [52, 107, 180]);
+  drawSeries(unloadPoints, [150, 80, 80]);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(4.6);
