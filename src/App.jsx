@@ -212,7 +212,7 @@ function duplicateRecord(record) {
           </div>
         </div>
         <aside className="right-col">
-          <SectionHeader label="Grafico, esito, firma e report" step="2" color={T.accent} />
+          <SectionHeader label="Grafico, firma e report" step="2" color={T.accent} />
           <Results result={result} data={data} setData={setData} chartRef={chartRef} />
           <SectionHeader label="Firma tecnico" step="3" color={T.accentYellow} />
           <SignaturePad value={data.signature} onChange={(signature) => setData((prev) => ({ ...prev, signature }))} />
