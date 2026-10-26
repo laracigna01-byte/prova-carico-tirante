@@ -222,7 +222,7 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   }
 
   function py(p) {
-    return plotY + plotH - ((Number(p.y) - minY) / yRange) * plotH;
+    return plotY + ((Number(p.y) - minY) / yRange) * plotH;
   }
 
   function drawSeries(points, color) {
@@ -260,8 +260,8 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   pdf.setTextColor(80, 80, 80);
   pdf.text("0", plotX - 1.2, plotY + plotH + 2.8, { align: "right" });
   pdf.text(fmt(maxX, 2), plotX + plotW, plotY + plotH + 2.8, { align: "right" });
-  pdf.text(fmt(maxY, 1), plotX - 1.2, plotY + 1.2, { align: "right" });
-  pdf.text(fmt(minY, 1), plotX - 1.2, plotY + plotH, { align: "right" });
+  pdf.text(fmt(maxY, 1), plotX - 1.2, plotY + plotH, { align: "right" });
+  pdf.text(fmt(minY, 1), plotX - 1.2, plotY + 1.2, { align: "right" });
 }
 
 export async function exportReport({ data, result, photo = null, preview = false }) {
