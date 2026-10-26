@@ -39,13 +39,13 @@ export const DEFAULT_PROJECT = {
   exerciseLoad: "120",
   testFactor: 1.20,
   testLoad: 144,
-  jackId: "",
+  jackId: "30",
   jackCapacityTon: 30,
-  manometerId: "",
+  manometerId: "700",
   comparatorId: "",
   calibrationCoeff: "",
   note: "",
-  photoCaption: "",
+  photoCaption: "Foto della prova di carico sul tirante",
   signature: ""
 };
 
