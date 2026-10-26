@@ -134,13 +134,13 @@ export function InfoPanel({ data, setData, photo, setPhoto }) {
               onChange={(value) =>
                 setData((prev) => {
                   const ne = Number(value || 0);
-                  const coeff = Number(prev.testFactor || 1);
+                  const coeff = Number(prev.testFactor || 0);
 
                   return {
                     ...prev,
                     exerciseLoad: value,
                     testFactor: coeff,
-                    testLoad: ne * coeff,
+                    testLoad: value !== "" && prev.testFactor !== "" ? ne * coeff : "",
                   };
                 })
               }
@@ -148,16 +148,16 @@ export function InfoPanel({ data, setData, photo, setPhoto }) {
 
             <NumberInput
               label="Coefficiente prova"
-              value={data.testFactor || 1}
+              value={data.testFactor}
               onChange={(value) =>
                 setData((prev) => {
                   const ne = Number(prev.exerciseLoad || 0);
-                  const coeff = Number(value || 1);
+                  const coeff = Number(value || 0);
 
                   return {
                     ...prev,
                     testFactor: value,
-                    testLoad: ne * coeff,
+                    testLoad: value !== "" && prev.exerciseLoad !== "" ? ne * coeff : "",
                   };
                 })
               }
