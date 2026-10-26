@@ -195,7 +195,9 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   const plotH = h - 20;
 
   const maxX = Math.max(...allPoints.map((p) => Number(p.x)), 1);
-  const maxY = Math.max(...allPoints.map((p) => Number(p.y)), 1);
+  const minY = Math.min(0, ...allPoints.map((p) => Number(p.y)));
+  const maxY = Math.max(1, ...allPoints.map((p) => Number(p.y)));
+  const yRange = Math.max(maxY - minY, 1);
 
   pdf.setDrawColor(80, 80, 80);
   pdf.line(plotX, plotY + plotH, plotX + plotW, plotY + plotH);
@@ -212,15 +214,15 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(4.7);
   pdf.setTextColor(70, 70, 70);
-  pdf.text("Spostamento [mm]", plotX + plotW / 2, y + h - 3.2, { align: "center" });
-  pdf.text("Carico calcolato [kN]", x + 4.4, plotY + plotH / 2, { angle: 90 });
+  pdf.text("Carico applicato [kN]", plotX + plotW / 2, y + h - 3.2, { align: "center" });
+  pdf.text("Spostamento [mm]", x + 4.4, plotY + plotH / 2, { angle: 90 });
 
   function px(p) {
     return plotX + (Number(p.x) / maxX) * plotW;
   }
 
   function py(p) {
-    return plotY + plotH - (Number(p.y) / maxY) * plotH;
+    return plotY + plotH - ((Number(p.y) - minY) / yRange) * plotH;
   }
 
   function drawSeries(points, color, isUnload = false) {
@@ -264,6 +266,7 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   pdf.text("0", plotX - 1.2, plotY + plotH + 2.8, { align: "right" });
   pdf.text(fmt(maxX, 2), plotX + plotW, plotY + plotH + 2.8, { align: "right" });
   pdf.text(fmt(maxY, 1), plotX - 1.2, plotY + 1.2, { align: "right" });
+  pdf.text(fmt(minY, 1), plotX - 1.2, plotY + plotH, { align: "right" });
 }
 
 export async function exportReport({ data, result, photo = null, preview = false }) {
@@ -399,6 +402,7 @@ export async function exportReport({ data, result, photo = null, preview = false
   "bar = carico gradino x 700 / portata martinetto"
 );
 
+  ly += h + 2;
   ly = drawSection(pdf, leftX, ly, leftW, "TABELLA DI PROVA");
 
   const colW = [11, 18, 20, 22, 23, 22];
@@ -507,40 +511,9 @@ export async function exportReport({ data, result, photo = null, preview = false
 
   const bottomY = chartY + 5.5 + chartH + 4;
 
-  const esitoW = 66;
-  const firmaW = CW - esitoW - 5;
-  const firmaX = ML + esitoW + 5;
-
-  let ey = drawSection(pdf, ML, bottomY, esitoW, "ESITO DELLA PROVA");
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8);
-
-  const outcome = safeText(data.outcome, "Non dichiarato").toUpperCase();
-
-  if (outcome.includes("POSITIVO")) {
-    pdf.setTextColor(0, 120, 0);
-  } else if (outcome.includes("NEGATIVO")) {
-    pdf.setTextColor(180, 0, 0);
-  } else {
-    pdf.setTextColor(0, 0, 0);
-  }
-
-  pdf.text(outcome, ML + 2, ey + 5);
-
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(5.2);
-  addWrapped(
-    pdf,
-    data.outcomeNotes || "Nessuna osservazione sull'esito.",
-    ML + 2,
-    ey + 9.5,
-    esitoW - 4,
-    2.5
-  );
-
-  let fy = drawSection(pdf, firmaX, bottomY, firmaW, "FIRMA TECNICO INCARICATO");
+  const firmaW = CW;
+  const firmaX = ML;
+  const fy = drawSection(pdf, firmaX, bottomY, firmaW, "FIRMA TECNICO INCARICATO");
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(5.2);
