@@ -147,10 +147,8 @@ export function calcTirante({
     )
     .map(toChartPoint);
 
-  const chartUnload =
-    max && max.displacement !== null && Number.isFinite(Number(max.load))
-      ? [toChartPoint(max), ...chartUnloadPoints]
-      : chartUnloadPoints;
+  const lastFullLoad = [...rows].reverse().find((r) => !r.unload && r.factor === 1 && r.displacement !== null);
+  const chartUnload = lastFullLoad ? [toChartPoint(lastFullLoad), ...chartUnloadPoints] : chartUnloadPoints;
 
   const chartAll = [...chartLoad, ...chartUnload];
 
