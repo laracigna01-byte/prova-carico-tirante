@@ -49,7 +49,7 @@ export function buildRows({
   const coeff = toNumber(calibrationCoeff, null);
 
   // Conversione tonnellate -> kN
-  const jackCapacity = toNumber(jackCapacityTon, 0) * 9.81;
+  const jackCapacity = toNumber(jackCapacityTon, 0) * 9.80665;
 
   return loadSteps.map((step, index) => {
     const values = normalizeReadings(readings?.[step.key]);
