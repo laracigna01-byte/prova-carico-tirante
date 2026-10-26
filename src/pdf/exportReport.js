@@ -418,7 +418,7 @@ export async function exportReport({ data, result, photo = null, preview = false
   pdf.setTextColor(20, 20, 20);
 
   let tx = leftX;
-  ["Fase", "%", "Press. [bar]", "Calc. [kN]", "Teor. rif. [kN]", "Lettura [mm]"].forEach((head, i) => {
+  ["Fase", "%", "Press. [bar]", "Calc. [kN]", "Teor. rif. [kN]", "Spost. [mm]"].forEach((head, i) => {
     pdf.text(head, tx + 1.1, ly + 3.7);
     tx += colW[i];
   });
@@ -433,7 +433,7 @@ export async function exportReport({ data, result, photo = null, preview = false
     pdf.rect(leftX, ly, leftW, rowH);
 
     tx = leftX;
-    [r.stepNo, r.label, fmt(r.pressure, 2), fmt(r.load, 2), fmt(r.targetLoad, 2), fmt(r.reading, 3)].forEach((value, i) => {
+    [r.stepNo, r.label, fmt(r.pressure, 2), fmt(r.load, 2), fmt(r.targetLoad, 2), fmt(r.displacement, 3)].forEach((value, i) => {
       pdf.text(String(value), tx + 1.1, ly + 3.5, { maxWidth: colW[i] - 2.2 });
       tx += colW[i];
     });
