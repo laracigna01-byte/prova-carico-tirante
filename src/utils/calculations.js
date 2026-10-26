@@ -49,7 +49,7 @@ export function buildRows({
   const coeff = toNumber(calibrationCoeff, null);
 
   // Conversione tonnellate -> kN
-  const jackCapacity = toNumber(jackCapacityTon, 0) * 9.81;
+  const jackCapacity = toNumber(jackCapacityTon, 0) * 9.80665;
 
   return loadSteps.map((step, index) => {
     const values = normalizeReadings(readings?.[step.key]);
@@ -101,7 +101,7 @@ export function calcTirante({
   });
 
   // Spostamento relativo alla prima lettura (riferimento minuta Excel).
-  const initial = rows.find((r) => r.reading !== null)?.reading ?? null;
+  const initial = rows.find((r) => r.key === "p10")?.reading ?? null;
   rows.forEach((r) => {
     r.displacement = initial !== null && r.reading !== null
       ? round(r.reading - initial, 3)
