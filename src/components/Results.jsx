@@ -15,7 +15,7 @@ export function LoadDisplacementChart({ result }) {
       <ScatterChart margin={{ top: 10, right: 18, bottom: 24, left: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
         <XAxis type="number" dataKey="x" name="Carico" unit=" kN" domain={[0, "dataMax + 10"]} stroke={T.textMuted} label={{ value: "Carico [kN]", position: "insideBottom", offset: -12 }} />
-        <YAxis type="number" dataKey="y" name="Spostamento" unit=" mm" domain={["auto", "auto"]} stroke={T.textMuted} label={{ value: "Spostamento assoluto [mm]", angle: -90, position: "insideLeft" }} />
+        <YAxis type="number" dataKey="y" name="Spostamento" unit=" mm" reversed domain={["auto", "auto"]} stroke={T.textMuted} label={{ value: "Spostamento assoluto [mm]", angle: -90, position: "insideLeft" }} />
         <Tooltip content={<Tip />} />
         <Legend />
         <Scatter name="Carico" data={result.chartLoad} line={{ stroke: T.cycle1, strokeWidth: 2 }} fill={T.cycle1} />
