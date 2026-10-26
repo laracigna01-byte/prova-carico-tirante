@@ -189,10 +189,10 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
     return;
   }
 
-  const plotX = x + 13;
-  const plotY = y + 11;
-  const plotW = w - 22;
-  const plotH = h - 20;
+  const plotX = x + 17;
+  const plotY = y + 16;
+  const plotW = w - 27;
+  const plotH = h - 21;
 
   const maxX = Math.max(...allPoints.map((p) => Number(p.x)), 1);
   const minY = Math.min(0, ...allPoints.map((p) => Number(p.y)));
@@ -200,22 +200,37 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   const yRange = Math.max(maxY - minY, 1);
 
   pdf.setDrawColor(80, 80, 80);
-  pdf.line(plotX, plotY + plotH, plotX + plotW, plotY + plotH);
+  pdf.line(plotX, plotY, plotX + plotW, plotY);
   pdf.line(plotX, plotY, plotX, plotY + plotH);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(4.3);
+  pdf.setTextColor(65, 65, 65);
 
-  pdf.setDrawColor(220, 220, 220);
-  for (let i = 1; i <= 4; i++) {
-    const gy = plotY + (plotH / 5) * i;
+  // Tacche numeriche e griglia: carico in alto, spostamento crescente in basso.
+  for (let i = 0; i <= 5; i++) {
     const gx = plotX + (plotW / 5) * i;
-    pdf.line(plotX, gy, plotX + plotW, gy);
-    pdf.line(gx, plotY, gx, plotY + plotH);
+    if (i > 0) {
+      pdf.setDrawColor(223, 223, 223);
+      pdf.line(gx, plotY, gx, plotY + plotH);
+    }
+    pdf.setTextColor(65, 65, 65);
+    pdf.text(fmt((maxX / 5) * i, 1), gx, plotY - 1.1, { align: "center" });
+  }
+  for (let i = 0; i <= 5; i++) {
+    const gy = plotY + (plotH / 5) * i;
+    if (i > 0) {
+      pdf.setDrawColor(223, 223, 223);
+      pdf.line(plotX, gy, plotX + plotW, gy);
+    }
+    pdf.setTextColor(65, 65, 65);
+    pdf.text(fmt(minY + (yRange / 5) * i, 1), plotX - 1.6, gy + 0.8, { align: "right" });
   }
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(4.7);
   pdf.setTextColor(70, 70, 70);
-  pdf.text("Carico applicato [kN]", plotX + plotW / 2, y + h - 3.2, { align: "center" });
-  pdf.text("Spostamento [mm]", x + 4.4, plotY + plotH / 2, { angle: 90 });
+  pdf.text("Carico [kN]", plotX + plotW / 2, y + 8.4, { align: "center" });
+  pdf.text("Spostamento [mm]", x + 3.8, plotY + plotH / 2, { angle: 90 });
 
   function px(p) {
     return plotX + (Number(p.x) / maxX) * plotW;
@@ -256,12 +271,6 @@ function drawPdfChart(pdf, chartLoad = [], chartUnload = [], x, y, w, h) {
   pdf.setTextColor(150, 80, 80);
   pdf.text("Scarico", plotX + plotW - 18, plotY + 8);
 
-  pdf.setFontSize(4.4);
-  pdf.setTextColor(80, 80, 80);
-  pdf.text("0", plotX - 1.2, plotY + plotH + 2.8, { align: "right" });
-  pdf.text(fmt(maxX, 2), plotX + plotW, plotY + plotH + 2.8, { align: "right" });
-  pdf.text(fmt(maxY, 1), plotX - 1.2, plotY + plotH, { align: "right" });
-  pdf.text(fmt(minY, 1), plotX - 1.2, plotY + 1.2, { align: "right" });
 }
 
 export async function exportReport({ data, result, photo = null, preview = false }) {
