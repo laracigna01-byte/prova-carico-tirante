@@ -25,24 +25,14 @@ export function LoadDisplacementChart({ result }) {
   );
 }
 
-export function Results({ result, data, setData, chartRef }) {
+export function Results({ result, chartRef }) {
   return (
     <div>
       <div className="cards">
-        <ResultCard label="Gradini compilati" value={result.measuredCount} unit="/12" color={T.accentBlue} sub="carico e scarico" />
+        <ResultCard label="Gradini compilati" value={result.measuredCount} unit={`/${result.rows.length}`} color={T.accentBlue} sub="carico e scarico" />
         <ResultCard label="Spostamento a 100%" value={fmt(result.maxDisplacement, 3)} unit="mm" color={T.cycle1} sub="relativo alla prima lettura" />
         <ResultCard label="Residuo allo scarico" value={fmt(result.residual, 3)} unit="mm" color={T.accentOrange} sub="relativo alla prima lettura" />
         <ResultCard label="Manometro" value="700" unit="bar" color={T.accentYellow} sub="fondo scala proporzione" />
-      </div>
-
-      <div className="outcome-box">
-        <b>Esito della prova</b>
-        <div className="outcome-options">
-          {["Positivo", "Positivo con osservazioni", "Negativo"].map((item) => (
-            <label key={item}><input type="radio" name="outcome" checked={data.outcome === item} onChange={() => setData((p) => ({ ...p, outcome: item }))} /> {item}</label>
-          ))}
-        </div>
-        <textarea value={data.outcomeNotes || ""} onChange={(e) => setData((p) => ({ ...p, outcomeNotes: e.target.value }))} placeholder="Osservazioni sull'esito della prova" />
       </div>
 
       <div className="chart-box" ref={chartRef}>
