@@ -100,6 +100,13 @@ export function calcTirante({
     jackCapacityTon,
   });
 
+  // Spostamento relativo alla prima lettura (riferimento minuta Excel).
+  const initial = rows.find((r) => r.reading !== null)?.reading ?? null;
+  rows.forEach((r) => {
+    r.displacement = initial !== null && r.reading !== null
+      ? round(r.reading - initial, 3)
+      : null;
+  });
   const max = rows.find((r) => r.key === "p100") || null;
   const unload =
     rows.find((r) => r.isResidual) ||
@@ -111,8 +118,8 @@ export function calcTirante({
   const residual = unload?.displacement ?? null;
 
   const toChartPoint = (r) => ({
-    x: r.displacement,
-    y: r.load,
+    x: r.load,
+    y: r.displacement,
     pressure: r.pressure,
     targetLoad: r.targetLoad,
     name: r.label,
