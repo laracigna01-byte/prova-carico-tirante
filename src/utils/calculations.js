@@ -114,7 +114,7 @@ export function calcTirante({
     null;
 
   const measuredCount = rows.filter((r) => r.reading !== null).length;
-  const maxDisplacement = max?.displacement ?? null;
+  const maxDisplacement = rows.filter((r) => r.factor === 1 && !r.unload && r.displacement !== null).at(-1)?.displacement ?? null;
   const residual = unload?.displacement ?? null;
 
   const toChartPoint = (r) => ({
@@ -136,20 +136,7 @@ export function calcTirante({
     )
     .map(toChartPoint);
 
-  const chartLoad = chartLoadPoints.length
-    ? [
-        {
-          x: 0,
-          y: 0,
-          pressure: 0,
-          targetLoad: 0,
-          name: "Origine",
-          phase: "origine",
-          unload: false,
-        },
-        ...chartLoadPoints,
-      ]
-    : [];
+  const chartLoad = chartLoadPoints;
 
   const chartUnloadPoints = rows
     .filter(
