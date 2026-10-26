@@ -6,7 +6,7 @@ import { fmt } from "../utils/formatters";
 function Tip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
-  return <div className="tip"><b>{p.name}</b><br />Pressione {fmt(p.pressure, 2)} bar<br />Spostamento {fmt(p.x, 3)} mm<br />Carico {fmt(p.y, 2)} kN</div>;
+  return <div className="tip"><b>{p.name}</b><br />Pressione {fmt(p.pressure, 2)} bar<br />Spostamento {fmt(p.y, 3)} mm<br />Carico {fmt(p.x, 2)} kN</div>;
 }
 
 export function LoadDisplacementChart({ result }) {
@@ -14,8 +14,8 @@ export function LoadDisplacementChart({ result }) {
     <ResponsiveContainer width="100%" height="100%">
       <ScatterChart margin={{ top: 10, right: 18, bottom: 24, left: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-        <XAxis type="number" dataKey="x" name="Spostamento" unit=" mm" domain={[0, "dataMax + 0.5"]} stroke={T.textMuted} label={{ value: "Spostamento [mm]", position: "insideBottom", offset: -12 }} />
-        <YAxis type="number" dataKey="y" name="Carico" unit=" kN" domain={[0, "dataMax + 10"]} stroke={T.textMuted} label={{ value: "Carico [kN]", angle: -90, position: "insideLeft" }} />
+        <XAxis type="number" dataKey="x" name="Carico" unit=" kN" domain={[0, "dataMax + 10"]} stroke={T.textMuted} label={{ value: "Carico [kN]", position: "insideBottom", offset: -12 }} />
+        <YAxis type="number" dataKey="y" name="Spostamento" unit=" mm" domain={["auto", "auto"]} stroke={T.textMuted} label={{ value: "Spostamento assoluto [mm]", angle: -90, position: "insideLeft" }} />
         <Tooltip content={<Tip />} />
         <Legend />
         <Scatter name="Carico" data={result.chartLoad} line={{ stroke: T.cycle1, strokeWidth: 2 }} fill={T.cycle1} />
@@ -30,10 +30,9 @@ export function Results({ result, data, setData, chartRef }) {
     <div>
       <div className="cards">
         <ResultCard label="Gradini compilati" value={result.measuredCount} unit="/12" color={T.accentBlue} sub="carico e scarico" />
-        <ResultCard label="Spostamento a 100%" value={fmt(result.maxDisplacement, 3)} unit="mm" color={T.cycle1} sub="valore comparatore" />
-        <ResultCard label="Residuo allo scarico" value={fmt(result.residual, 3)} unit="mm" color={T.accentOrange} sub="valore comparatore" />
+        <ResultCard label="Spostamento a 100%" value={fmt(result.maxDisplacement, 3)} unit="mm" color={T.cycle1} sub="relativo alla prima lettura" />
+        <ResultCard label="Residuo allo scarico" value={fmt(result.residual, 3)} unit="mm" color={T.accentOrange} sub="relativo alla prima lettura" />
         <ResultCard label="Manometro" value="700" unit="bar" color={T.accentYellow} sub="fondo scala proporzione" />
-        <ResultCard label="Esito dichiarato" value={data.outcome || "—"} unit="" color={data.outcome === "Negativo" ? T.accentRed : T.accent} sub="scelto dal tecnico" />
       </div>
 
       <div className="outcome-box">
@@ -47,7 +46,7 @@ export function Results({ result, data, setData, chartRef }) {
       </div>
 
       <div className="chart-box" ref={chartRef}>
-        <div className="chart-title"><b>Grafico carico / spostamento</b><span>Il grafico parte da 0; asse X = spostamento letto al comparatore, asse Y = carico del gradino</span></div>
+        <div className="chart-title"><b>Grafico carico / spostamento</b><span>Asse X = carico [kN], asse Y = spostamento relativo [mm]</span></div>
         {result.chartAll?.length ? <div className="chart"><LoadDisplacementChart result={result} /></div> : <div className="empty">Inserisci le letture per generare il grafico.</div>}
       </div>
 
@@ -56,7 +55,7 @@ export function Results({ result, data, setData, chartRef }) {
         <div className="scroll">
           <table>
             <thead><tr><th>Fase</th><th>%</th><th>Pressione bar</th><th>Carico calcolato kN</th><th>Carico teorico rif. kN</th><th>Spostamento mm</th></tr></thead>
-            <tbody>{result.rows.map((r) => <tr key={r.key} className={r.unload ? "unload" : ""}><td>{r.stepNo}</td><td>{r.label}</td><td>{fmt(r.pressure, 2)}</td><td>{fmt(r.load, 2)}</td><td>{fmt(r.targetLoad, 2)}</td><td>{fmt(r.reading, 3)}</td></tr>)}</tbody>
+            <tbody>{result.rows.map((r) => <tr key={r.key} className={r.unload ? "unload" : ""}><td>{r.stepNo}</td><td>{r.label}</td><td>{fmt(r.pressure, 2)}</td><td>{fmt(r.load, 2)}</td><td>{fmt(r.targetLoad, 2)}</td><td>{fmt(r.displacement, 3)}</td></tr>)}</tbody>
           </table>
         </div>
       </div>
