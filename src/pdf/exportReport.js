@@ -447,16 +447,19 @@ export async function exportReport({ data, result, photo = null, preview = false
 
   ry = drawSection(pdf, rightX, ry, rightW, "DOCUMENTAZIONE FOTOGRAFICA");
 
+  const photos = (Array.isArray(photo) ? photo : photo?.dataUrl ? [photo] : []).filter((p) => p?.dataUrl).slice(0, 10);
+  const coverPhoto = photos[0];
+
   const photoH = 60;
   pdf.setDrawColor(185, 185, 185);
   pdf.rect(rightX, ry, rightW, photoH);
 
-  if (photo?.dataUrl) {
+  if (coverPhoto?.dataUrl) {
     try {
       addContainedImage(
         pdf,
-        photo.dataUrl,
-        imageType(photo.dataUrl),
+        coverPhoto.dataUrl,
+        imageType(coverPhoto.dataUrl),
         rightX + 2,
         ry + 2,
         rightW - 4,
@@ -532,6 +535,42 @@ export async function exportReport({ data, result, photo = null, preview = false
   }
 
   drawFooter(pdf, ML, PW, PH);
+
+  if (photos.length > 1) {
+    const extra = photos.slice(1);
+    const margin = 13;
+    const gap = 8;
+    const cellW = (PW - margin * 2 - gap) / 2;
+    const cellH = 73;
+    for (let offset = 0; offset < extra.length; offset += 6) {
+      pdf.addPage();
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(12);
+      pdf.setTextColor(20, 20, 20);
+      pdf.text("DOCUMENTAZIONE FOTOGRAFICA - TIRANTE", margin, 17);
+      pdf.setFontSize(7);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(safeText(data.anchorId || data.reportId, "—"), margin, 23);
+      extra.slice(offset, offset + 6).forEach((item, i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        const x = margin + col * (cellW + gap);
+        const y = 30 + row * (cellH + gap);
+        pdf.setDrawColor(185, 185, 185);
+        pdf.rect(x, y, cellW, cellH);
+        try {
+          addContainedImage(pdf, item.dataUrl, imageType(item.dataUrl), x + 2, y + 2, cellW - 4, cellH - 12);
+        } catch {
+          pdf.setFontSize(7);
+          pdf.text("Foto non leggibile", x + 3, y + 9);
+        }
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(7);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text("Foto " + (offset + i + 2), x + 3, y + cellH - 4);
+      });
+    }
+  }
 
   const name = cleanFileName(`Minuta_prova_tirante_${data.anchorId || data.reportId || "report"}.pdf`);
   const blob = createPdfBlob(pdf);
