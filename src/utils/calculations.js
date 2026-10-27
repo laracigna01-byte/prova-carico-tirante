@@ -177,7 +177,7 @@ export function validateTest({ data, result, photo }) {
     errors.push("Carico massimo della prova mancante");
   if (result.measuredCount === 0)
     errors.push("Inserire almeno una lettura del comparatore");
-  if (!photo) errors.push("Foto della prova mancante");
+  if (!(Array.isArray(photo) ? photo.length : photo?.dataUrl)) errors.push("Foto della prova mancante");
   if (!data.tecnico) errors.push("Tecnico esecutore mancante");
 
   return errors;
