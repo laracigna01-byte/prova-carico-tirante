@@ -19,7 +19,7 @@ export default function App() {
   const [data, setData] = useState(DEFAULT_PROJECT);
   const [readings, setReadings] = useState(initialReadings);
   const [pressures, setPressures] = useState(initialPressures);
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState([]);
   const [archive, setArchive] = useState(listTests());
   const chartRef = useRef(null);
 
@@ -73,14 +73,14 @@ export default function App() {
     setData({ ...DEFAULT_PROJECT, reportId: nextReportId() });
     setReadings(initialReadings());
     setPressures(initialPressures());
-    setPhoto(null);
+    setPhoto([]);
   }
 
   function saveCurrent() {
     const id = data.reportId || nextReportId();
     const nextData = { ...data, reportId: id };
     setData(nextData);
-    const record = { id, savedAt: new Date().toISOString(), data: nextData, readings, pressures, photo };
+    const record = { id, savedAt: new Date().toISOString(), data: nextData, readings, pressures, photos: Array.isArray(photo) ? photo : photo ? [photo] : [] };
     setArchive(saveTest(record));
     window.alert(`Prova ${id} salvata in archivio.`);
   }
@@ -104,7 +104,7 @@ export default function App() {
   setData(restoredData);
   setReadings(restoredReadings);
   setPressures(restoredPressures);
-  setPhoto(record.photo || null);
+  setPhoto(record.photos || (record.photo?.dataUrl ? [record.photo] : []));
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -135,7 +135,7 @@ function duplicateRecord(record) {
     data: duplicatedData,
     readings: duplicatedReadings,
     pressures: duplicatedPressures,
-    photo: record.photo || null,
+    photos: record.photos || (record.photo?.dataUrl ? [record.photo] : []),
   };
 
   setArchive(saveTest(duplicatedRecord));
@@ -160,7 +160,7 @@ function duplicateRecord(record) {
   exportReport({
     data: record.data,
     result: recResult,
-    photo: record.photo,
+    photo: record.photos || record.photo,
     chartNode: null,
   });
 }
@@ -184,7 +184,7 @@ function duplicateRecord(record) {
         <div><span>Nc collaudo</span><b>{fmt(Number(data.testLoad || 0), 2)} kN</b></div>
         <div><span>Lunghezza</span><b>{data.length || "-"} m</b></div>
         <div><span>Manometro</span><b>700 bar</b></div>
-        <div><span>Foto prova</span><b>{photo ? "Presente" : "Mancante"}</b></div>
+        <div><span>Foto prova</span><b>{(Array.isArray(photo) ? photo.length : photo ? 1 : 0) + " foto"}</b></div>
       </section>
 
       {errors.length > 0 && <div className="warning-box"><b>Controlli prima del PDF:</b> {errors.join(" - ")}</div>}
