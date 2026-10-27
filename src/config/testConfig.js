@@ -4,9 +4,9 @@ export const LOAD_STEPS = [
   { key: "p40", label: "40%", percent: 40, factor: 0.40, phase: "carico" },
   { key: "p60", label: "60%", percent: 60, factor: 0.60, phase: "carico" },
   { key: "p80", label: "80%", percent: 80, factor: 0.80, phase: "carico" },
-  { key: "p100", label: "100% - 5 min", percent: 100, factor: 1, phase: "carico", isMax: true },
-  { key: "p100b", label: "100% - 10 min", percent: 100, factor: 1, phase: "carico" },
-  { key: "p100c", label: "100% - 15 min", percent: 100, factor: 1, phase: "carico" },
+  { key: "p100", label: "100% - lettura 1 (5 min)", percent: 100, factor: 1, phase: "carico", isMax: true },
+  { key: "p100b", label: "100% - lettura 2 (5 min)", percent: 100, factor: 1, phase: "carico" },
+  { key: "p100c", label: "100% - lettura 3 (5 min)", percent: 100, factor: 1, phase: "carico" },
   { key: "u70", label: "Scarico 70%", percent: 70, factor: 0.70, phase: "scarico", unload: true },
   { key: "u40", label: "Scarico 40%", percent: 40, factor: 0.40, phase: "scarico", unload: true },
   { key: "u10", label: "Scarico 10%", percent: 10, factor: 0.10, phase: "scarico", unload: true, isResidual: true }
